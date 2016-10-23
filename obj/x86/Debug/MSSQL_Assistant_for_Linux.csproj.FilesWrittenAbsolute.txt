@@ -1,5 +1,0 @@
-/home/viachpaliy/MSSQL_Assistant_for_Linux/MSSQL_Assistant_for_Linux/obj/x86/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
-/home/viachpaliy/MSSQL_Assistant_for_Linux/MSSQL_Assistant_for_Linux/bin/Debug/MSSQL_Assistant_for_Linux.exe.mdb
-/home/viachpaliy/MSSQL_Assistant_for_Linux/MSSQL_Assistant_for_Linux/bin/Debug/MSSQL_Assistant_for_Linux.exe
-/home/viachpaliy/MSSQL_Assistant_for_Linux/MSSQL_Assistant_for_Linux/obj/x86/Debug/MSSQL_Assistant_for_Linux.exe
-/home/viachpaliy/MSSQL_Assistant_for_Linux/MSSQL_Assistant_for_Linux/obj/x86/Debug/MSSQL_Assistant_for_Linux.exe.mdb
