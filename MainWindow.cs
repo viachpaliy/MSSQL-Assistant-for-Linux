@@ -6,20 +6,22 @@ namespace MSSQL_Assistant_for_Linux
 	public class MainWindow : Gtk.Window
 	{
 		VBox vbox;
-		AssistantMenuBar menubar;
-		AssistantToolbar toolbar;
+		public AssistantMenuBar menubar;
+		public AssistantToolbar toolbar;
 		HBox hbox;
 		VBox lbox;
 		VBox rbox;
 		HBox hbCurrentDB;
 		Label lCurrentDB;
-		ComboBox cbCurrentDB;
-		ScrolledWindow swDBStructure;
-		TreeView tvDBStructure;
+		public ComboBox cbCurrentDB;
+		public ScrolledWindow swDBStructure;
+		public TreeView tvDBStructure;
 		ScrolledWindow queryWindow;
-		TextView queryText;
+		public TextView queryText;
 		ScrolledWindow responseWindow;
-		TreeView responseTable;
+		public TreeView responseTable;
+
+		DBStructure dataBasesStructure;
 
 		public MainWindow (string title):base(title)
 		{
@@ -62,9 +64,28 @@ namespace MSSQL_Assistant_for_Linux
 
 			vbox.PackStart (hbox, true, true, 0);
 			Add (vbox);
+
+		    dataBasesStructure = new DBStructure ();
+		
+			toolbar.newConnection.Clicked += dataBasesStructure.OnNewConnect;
+			toolbar.newConnection.Clicked += updateDBStructure;
+
 			ShowAll ();
 
 		}
+
+		void updateDBStructure(object o, EventArgs args)
+		{
+			//dataBasesStructure.getConnectionString ();
+			//dataBasesStructure.getDataBasesStructure ();
+			tvDBStructure.Model = dataBasesStructure.structureStore;
+			tvDBStructure.HeadersVisible = true;
+
+			tvDBStructure.AppendColumn ("Database", new CellRendererText (), "text", 0);
+			ShowAll ();
+		}
+
+
 
 	}
 }

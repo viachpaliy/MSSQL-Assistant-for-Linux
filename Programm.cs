@@ -9,11 +9,19 @@ namespace MSSQL_Assistant_for_Linux
 		{
 			Application.Init ();
 			var window = new MainWindow ("MSSQL Assistant for Linux");
+			window.DeleteEvent += OnDelete;
+
+		
+
+
 			window.ShowAll ();
 
 			window.DeleteEvent += OnDelete;
+
 			Application.Run ();
 		}
+
+
 		static void OnDelete (object o, DeleteEventArgs e)
 		{
 			Application.Quit ();

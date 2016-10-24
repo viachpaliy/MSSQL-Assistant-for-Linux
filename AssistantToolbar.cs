@@ -5,9 +5,9 @@ namespace MSSQL_Assistant_for_Linux
 {
 	public class AssistantToolbar:Toolbar
 	{
-		ToolButton newConnection;
-		ToolButton updateConnection;
-		ToolButton closeConnection;
+		public ToolButton newConnection;
+		public ToolButton updateConnection;
+		public ToolButton closeConnection;
 		
 		ToolButton newBtn;
 		ToolButton openBtn;
