@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using System.IO;
 
 namespace MSSQL_Assistant_for_Linux
 {
@@ -37,7 +38,7 @@ namespace MSSQL_Assistant_for_Linux
 			hbox.PackStart (leftBox, true, true, 0);
 			hbox.PackStart (rightBox, true, true, 0);
 			Gtk.Image icon=new Gtk.Image();
-			Gdk.Pixbuf pic = new Gdk.Pixbuf("/home/viachpaliy/MSSQL_Assistant_for_Linux/MSSQL_Assistant_for_Linux/res/MSSQL.png");
+			Gdk.Pixbuf pic = new Gdk.Pixbuf ("res/MSSQL.png");
 			icon.Pixbuf = pic;
 			vbox.PackStart (icon, false, false, 0);
 			vbox.PackStart(hbox,true, true, 0);

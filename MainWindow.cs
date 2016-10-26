@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using System.IO;
 
 namespace MSSQL_Assistant_for_Linux
 {
@@ -27,6 +28,9 @@ namespace MSSQL_Assistant_for_Linux
 		{
 			DefaultHeight = 640;
 			DefaultWidth = 1000;
+
+			Gdk.Pixbuf icon = new Gdk.Pixbuf ("res/icona.png");
+			this.Icon = icon;
 			vbox = new VBox (false,1);
 			menubar = new AssistantMenuBar ();
 			vbox.PackStart (menubar, false, true, 0);
@@ -34,11 +38,12 @@ namespace MSSQL_Assistant_for_Linux
 			vbox.PackStart (toolbar, false, true, 0);
 			hbox = new HBox (false, 1);
 			vbox.PackStart (hbox, true, true, 0);
-			lbox = new VBox (false, 1);
+			lbox = new VBox (false, 3);
+			lbox.BorderWidth = 3;
 
 			hbCurrentDB = new HBox (false, 1);
 			lCurrentDB = new Label ("Current Database:");
-			cbCurrentDB = new ComboBox ();
+			cbCurrentDB = ComboBox.NewText ();
 			hbCurrentDB.PackStart (lCurrentDB, false, false, 0);
 			hbCurrentDB.PackStart (cbCurrentDB, true, true, 0);
 			lbox.PackStart (hbCurrentDB, false, false, 0);
@@ -46,17 +51,21 @@ namespace MSSQL_Assistant_for_Linux
 			swDBStructure = new ScrolledWindow ();
 			tvDBStructure = new TreeView ();
 			swDBStructure.Add (tvDBStructure);
+			lbox.WidthRequest = 300;
 			lbox.PackStart (swDBStructure, true, true, 0);
 
-			rbox = new VBox (false, 1);
+			rbox = new VBox (false, 3);
+
 			queryWindow = new ScrolledWindow ();
 			queryText = new TextView ();
 			queryWindow.Add (queryText);
+			queryWindow.BorderWidth = 3;
 			rbox.PackStart (queryWindow, true, true, 0);
 
 			responseWindow = new ScrolledWindow ();
 			responseTable = new TreeView ();
 			responseWindow.Add (responseTable);
+			responseWindow.BorderWidth = 3;
 			rbox.PackStart (responseWindow, true, true, 0);
 
 			hbox.PackStart (lbox, false, true, 0);
@@ -67,8 +76,20 @@ namespace MSSQL_Assistant_for_Linux
 
 		    dataBasesStructure = new DBStructure ();
 		
+
+
+			menubar.newConnection.Activated += dataBasesStructure.OnNewConnect;
+			menubar.newConnection.Activated += updateDBStructure;
+
 			toolbar.newConnection.Clicked += dataBasesStructure.OnNewConnect;
 			toolbar.newConnection.Clicked += updateDBStructure;
+
+			menubar.updateConnection.Activated+=dataBasesStructure.OnUpdateConnect;
+			menubar.updateConnection.Activated+=updateDBStructure;
+
+			toolbar.updateConnection.Clicked += dataBasesStructure.OnUpdateConnect;
+			toolbar.updateConnection.Clicked += updateDBStructure;
+
 
 			ShowAll ();
 
@@ -76,12 +97,21 @@ namespace MSSQL_Assistant_for_Linux
 
 		void updateDBStructure(object o, EventArgs args)
 		{
-			//dataBasesStructure.getConnectionString ();
-			//dataBasesStructure.getDataBasesStructure ();
+			
 			tvDBStructure.Model = dataBasesStructure.structureStore;
 			tvDBStructure.HeadersVisible = true;
-
+			var column = tvDBStructure.GetColumn (0);
+			if (column != null)
+				tvDBStructure.RemoveColumn (column);
 			tvDBStructure.AppendColumn ("Database", new CellRendererText (), "text", 0);
+
+
+			var model = new Gtk.ListStore (typeof(string));
+			for (int i=0;i<dataBasesStructure.dataBasesNames.Count;i++) {
+				model.AppendValues(dataBasesStructure.dataBasesNames[i]);
+			}
+			cbCurrentDB.Model = model;
+
 			ShowAll ();
 		}
 

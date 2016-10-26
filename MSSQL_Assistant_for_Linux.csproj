@@ -61,6 +61,7 @@
     <Compile Include="DBStructure.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\MSSQL.png" />
+    <EmbeddedResource Include="res\MSSQL.png" />
+    <EmbeddedResource Include="res\icona.png" />
   </ItemGroup>
 </Project>

@@ -12,9 +12,9 @@ namespace MSSQL_Assistant_for_Linux
 		MenuItem edit;
 		Menu editMenu;
 
-		MenuItem newConnection;
-		MenuItem updateConnection;
-		MenuItem closeConnection;
+	public	MenuItem newConnection;
+	public	MenuItem updateConnection;
+	public	MenuItem closeConnection;
 
 		MenuItem newQuery;
 		MenuItem open;

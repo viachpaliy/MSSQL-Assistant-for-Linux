@@ -28,7 +28,7 @@ namespace MSSQL_Assistant_for_Linux
 			newConnection.TooltipText="Open connection";
 			updateConnection = new ToolButton (Stock.Refresh);
 			updateConnection.TooltipText = "Update connection";
-			closeConnection = new ToolButton (Stock.Quit);
+			closeConnection = new ToolButton (Stock.Disconnect);
 			closeConnection.TooltipText = "Close connection";
 
 			newBtn = new ToolButton (Stock.New);

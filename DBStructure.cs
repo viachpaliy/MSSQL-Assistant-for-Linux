@@ -25,12 +25,18 @@ namespace MSSQL_Assistant_for_Linux
 			columnsNames = new List<string> ();
 		}
 
-		public void OnNewConnect(object sender, EventArgs args)
+		public void OnNewConnect(object o, EventArgs args)
 		{
 			getConnectionString ();
 			getDataBasesStructure ();
 
 		}
+
+		public void OnUpdateConnect(object o, EventArgs args)
+		{
+			getDataBasesStructure ();
+		}
+
 		public void getDataBasesStructure()
 		{
 			structureStore.Clear ();
