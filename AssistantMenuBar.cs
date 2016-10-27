@@ -16,17 +16,17 @@ namespace MSSQL_Assistant_for_Linux
 	public	MenuItem updateConnection;
 	public	MenuItem closeConnection;
 
-		MenuItem newQuery;
-		MenuItem open;
-		MenuItem save;
-		MenuItem saveAs;
-		MenuItem close;
+		public MenuItem newQuery;
+		public MenuItem open;
+		public MenuItem save;
+		public MenuItem saveAs;
+		public MenuItem close;
 
-		MenuItem copy;
-		MenuItem paste;
-		MenuItem cut;
-		MenuItem undo;
-		MenuItem redo;
+		public MenuItem copy;
+		public MenuItem paste;
+		public MenuItem cut;
+		public MenuItem undo;
+		public MenuItem redo;
 		
 		public AssistantMenuBar ():base()
 		{

@@ -9,18 +9,18 @@ namespace MSSQL_Assistant_for_Linux
 		public ToolButton updateConnection;
 		public ToolButton closeConnection;
 		
-		ToolButton newBtn;
-		ToolButton openBtn;
-		ToolButton saveBtn;
-		ToolButton saveAsBtn;
-		ToolButton closeBtn;
+		public ToolButton newBtn;
+		public ToolButton openBtn;
+		public ToolButton saveBtn;
+		public ToolButton saveAsBtn;
+		public ToolButton closeBtn;
 
 
-		ToolButton copyBtn;
-		ToolButton pasteBtn;
-		ToolButton cutBtn;
-		ToolButton undoBtn;
-		ToolButton redoBtn;
+		public ToolButton copyBtn;
+		public ToolButton pasteBtn;
+		public ToolButton cutBtn;
+		public ToolButton undoBtn;
+		public ToolButton redoBtn;
 
 		public AssistantToolbar ()
 		{

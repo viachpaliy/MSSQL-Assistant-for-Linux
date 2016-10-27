@@ -59,6 +59,7 @@
     <Compile Include="AssistantToolbar.cs" />
     <Compile Include="ConnectDialog.cs" />
     <Compile Include="DBStructure.cs" />
+    <Compile Include="QueryEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="res\MSSQL.png" />

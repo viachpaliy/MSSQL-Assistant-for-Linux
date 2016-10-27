@@ -23,6 +23,7 @@ namespace MSSQL_Assistant_for_Linux
 		public TreeView responseTable;
 
 		DBStructure dataBasesStructure;
+		QueryEditor queryEditor;
 
 		public MainWindow (string title):base(title)
 		{
@@ -76,6 +77,9 @@ namespace MSSQL_Assistant_for_Linux
 
 		    dataBasesStructure = new DBStructure ();
 		
+			queryEditor = new QueryEditor ();
+			queryEditor.parent = this;
+			queryEditor.textBuffer = queryText.Buffer;
 
 
 			menubar.newConnection.Activated += dataBasesStructure.OnNewConnect;
@@ -90,6 +94,39 @@ namespace MSSQL_Assistant_for_Linux
 			toolbar.updateConnection.Clicked += dataBasesStructure.OnUpdateConnect;
 			toolbar.updateConnection.Clicked += updateDBStructure;
 
+			menubar.newQuery.Activated += queryEditor.OnNew;
+			toolbar.newBtn.Clicked += queryEditor.OnNew;
+
+			menubar.open.Activated += queryEditor.OnOpen;
+			toolbar.openBtn.Clicked += queryEditor.OnOpen;
+
+			menubar.save.Activated += queryEditor.OnSave;
+			toolbar.saveBtn.Clicked += queryEditor.OnSave;
+
+			menubar.saveAs.Activated += queryEditor.OnSaveAs;
+			toolbar.saveAsBtn.Clicked += queryEditor.OnSaveAs;
+
+			menubar.close.Activated += queryEditor.OnClose;
+			toolbar.closeBtn.Clicked += queryEditor.OnClose;
+
+			menubar.undo.Activated += queryEditor.OnUndo;
+			toolbar.undoBtn.Clicked += queryEditor.OnUndo;
+
+			menubar.redo.Activated += queryEditor.OnRedo;
+			toolbar.redoBtn.Clicked += queryEditor.OnRedo;
+
+			menubar.copy.Activated += queryEditor.OnCopy;
+			toolbar.copyBtn.Clicked += queryEditor.OnCopy;
+
+			menubar.cut.Activated += queryEditor.OnCut;
+			toolbar.cutBtn.Clicked += queryEditor.OnCut;
+
+			menubar.paste.Activated += queryEditor.OnPaste;
+			toolbar.pasteBtn.Clicked += queryEditor.OnPaste;
+
+			queryText.Buffer.Changed+=queryEditor.OnTextChanged;
+			queryText.Buffer.Changed += queryEditor.SingleKeywordsHighlighting;
+			queryText.Buffer.UserActionBegun += queryEditor.OnUserActionBegun;
 
 			ShowAll ();
 
