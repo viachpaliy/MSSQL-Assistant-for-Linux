@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gtk;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace MSSQL_Assistant_for_Linux
@@ -158,8 +159,8 @@ namespace MSSQL_Assistant_for_Linux
 			{
 				dialog = new Dialog ();
 				dialog.Title = "Loading data from databases...";
-				dialog.AddButton (Stock.Cancel, 1);
-				dialog.Response += new ResponseHandler (ResponseCB);
+				//dialog.AddButton (Stock.Cancel, 1);
+				//dialog.Response += new ResponseHandler (ResponseCB);
 				dialog.SetDefaultSize (453, 174);
 
 				VBox vbox = dialog.VBox;
@@ -211,6 +212,46 @@ namespace MSSQL_Assistant_for_Linux
 
 		}
 
+
+		private void seekColumnesNames(TreeIter Iter,TreeIter parentIter)
+		{
+			using (SqlConnection connection = new SqlConnection (
+				                                  connectionString)) {
+				string name = (string)structureStore.GetValue (Iter, 0);
+				string dbname = (string)structureStore.GetValue (parentIter, 0);
+				string commandText = "USE " + dbname +
+				                    "SELECT * FROM " + name;
+				
+				SqlCommand command = new SqlCommand(commandText , connection);
+				connection.Open();
+				SqlDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
+
+
+				try{
+				//Retrieve column schema into a DataTable.
+				 var schemaTable = reader.GetSchemaTable();
+
+				//For each field in the table...
+				//foreach (DataRow myField in schemaTable.Rows) {
+					//For each property of the field...
+						//TreeIter it=structureStore.AppendValues (Iter,myField [ColumnName].ToString());
+					foreach (DataColumn myProperty in schemaTable.Columns) {
+						//Display the field name and value.
+						//Console.WriteLine (myProperty.ColumnName + " = " + myField [myProperty].ToString ());
+//							TreeIter it=structureStore.AppendValues (Iter,myProperty.ColumnName);
+//							structureStore.AppendValues(it,myProperty.DataType.ToString());
+//							if (myProperty.AutoIncrement) {structureStore.AppendValues(it,"AUTOINCREMENT");}
+//							if (myProperty.AllowDBNull) {structureStore.AppendValues(it," NULL");}
+					//}
+				}
+
+				}
+				finally{
+					reader.Close ();
+				}
+
+			}
+		}
 
 		private void findColumnesNames(TreeIter Iter,TreeIter parentIter)
 		{

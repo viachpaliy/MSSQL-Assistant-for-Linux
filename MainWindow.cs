@@ -25,6 +25,10 @@ namespace MSSQL_Assistant_for_Linux
 		DBStructure dataBasesStructure;
 		QueryEditor queryEditor;
 
+		string[] keywords;
+		string keywordsColor;
+		TextTag keywordTag;
+
 		public MainWindow (string title):base(title)
 		{
 			DefaultHeight = 640;
@@ -124,8 +128,21 @@ namespace MSSQL_Assistant_for_Linux
 			menubar.paste.Activated += queryEditor.OnPaste;
 			toolbar.pasteBtn.Clicked += queryEditor.OnPaste;
 
+			 keywordsColor = "blue";
+			 keywordTag = new TextTag ("keywordTag");
+			keywordTag.Foreground = keywordsColor;
+			queryText.Buffer.TagTable.Add (keywordTag);
+
+			keywords=new string[]{ "create","select", "drop", "delete", "insert", "update", "truncate",
+				"grant ","print","sp_executesql ","objects","declare","table","into","sqlcancel","sqlsetprop",
+				"sqlexec","sqlcommit","revoke","rollback","sqlrollback","values","sqldisconnect","sqlconnect",
+				"user","system_user","use","schema_name","schemata","information_schema","dbo","guest",
+				"db_owner",	"db_","table","@@","Users","execute","sysname","sp_who","sysobjects","sp_",
+				"sysprocesses ","master","sys","db_","is_","exec", "end", "xp_","; --", "/*", "*/", "alter",
+				"begin", "cursor", "kill","--" ,"tabname","or","sys"};
+
 			queryText.Buffer.Changed+=queryEditor.OnTextChanged;
-			queryText.Buffer.Changed += queryEditor.SingleKeywordsHighlighting;
+			queryText.Buffer.UserActionBegun += KeywordsHighlighting;
 			queryText.Buffer.UserActionBegun += queryEditor.OnUserActionBegun;
 
 			ShowAll ();
@@ -150,6 +167,27 @@ namespace MSSQL_Assistant_for_Linux
 			cbCurrentDB.Model = model;
 
 			ShowAll ();
+		}
+
+		public void KeywordsHighlighting(object sender,EventArgs args)
+		{
+			int pos, startpos;
+			bool exit;
+
+			foreach (string item in keywords) {
+				startpos = 0;
+				exit = false;
+				do {
+					pos=queryText.Buffer.Text.ToLower().IndexOf(item,startpos);
+					if (pos==-1){exit=true;}
+					else{
+						queryText.Buffer.ApplyTag(keywordTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+							startpos=pos+item.Length;
+					}
+					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
+				} while(!exit);
+			}
 		}
 
 

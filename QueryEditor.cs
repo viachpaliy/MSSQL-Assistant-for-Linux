@@ -14,8 +14,7 @@ namespace MSSQL_Assistant_for_Linux
 		public Stack<string> redoStack;
 		string clipboard;
 		public string fileName;
-		string[] keywords;
-		string keywordsColor;
+	
 
 		public QueryEditor ()
 		{
@@ -23,42 +22,13 @@ namespace MSSQL_Assistant_for_Linux
 			redoStack = new Stack<string> ();
 
 
-			keywords=new string[]{ "create", "drop", "delete", "insert", "update", "truncate",
-				"grant ","print","sp_executesql ","objects","declare","table","into","sqlcancel","sqlsetprop",
-				"sqlexec","sqlcommit","revoke","rollback","sqlrollback","values","sqldisconnect","sqlconnect",
-				"user","system_user","use","schema_name","schemata","information_schema","dbo","guest",
-				"db_owner",	"db_","table","@@","Users","execute","sysname","sp_who","sysobjects","sp_",
-				"sysprocesses ","master","sys","db_","is_","exec", "end", "xp_","; --", "/*", "*/", "alter",
-				"begin", "cursor", "kill","--" ,"tabname","or","sys"};
-			keywordsColor = "maroon";
+
 			fileName = "Untitled";
 
 		}
 
 
-		public void SingleKeywordsHighlighting(object sender,EventArgs args)
-		{
-			int pos, startpos;
-			bool exit;
-			TextTag keywordTag = new TextTag ("keywordTag");
-			keywordTag.Foreground = keywordsColor;
-			textBuffer.TagTable.Add (keywordTag);
-			foreach (string item in keywords) {
-				startpos = 0;
-				exit = false;
-				string tem = item.ToLower ();
-				do {
-					pos=textBuffer.Text.IndexOf(tem,startpos);
-					if (pos==-1){exit=true;}
-					else{
-						textBuffer.ApplyTag(keywordTag,textBuffer.GetIterAtOffset(pos),
-							textBuffer.GetIterAtOffset(pos+item.Length));
-							startpos=pos+item.Length;
-					}
-					if (startpos>=textBuffer.CharCount){exit=true;}	
-				} while(!exit);
-			}
-		}
+	
 
 		public void OnClose(object sender, EventArgs args)
 		{
