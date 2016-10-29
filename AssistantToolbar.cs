@@ -22,6 +22,8 @@ namespace MSSQL_Assistant_for_Linux
 		public ToolButton undoBtn;
 		public ToolButton redoBtn;
 
+		public ToolButton executeBtn;
+
 		public AssistantToolbar ()
 		{
 			newConnection = new ToolButton (Stock.Connect);
@@ -53,19 +55,26 @@ namespace MSSQL_Assistant_for_Linux
 			redoBtn = new ToolButton (Stock.Redo);
 			redoBtn.TooltipText = "Redo";
 
+			executeBtn = new ToolButton (Stock.Execute);
+			executeBtn.TooltipText = "Query execute";
+
 			this.Insert (newConnection, 0);
 			this.Insert (updateConnection, 1);
 			this.Insert (closeConnection, 2);
-			this.Insert (newBtn, 3);
-			this.Insert (openBtn, 4);
-			this.Insert (saveBtn, 5);
-			this.Insert (saveAsBtn, 6);
-			this.Insert (closeBtn, 7);
-			this.Insert (copyBtn, 8);
-			this.Insert (pasteBtn, 9);
-			this.Insert (cutBtn, 10);
-			this.Insert (undoBtn, 11);
-			this.Insert (redoBtn, 12);
+			this.Insert (new SeparatorToolItem (), 3);
+			this.Insert (newBtn, 4);
+			this.Insert (openBtn, 5);
+			this.Insert (saveBtn, 6);
+			this.Insert (saveAsBtn, 7);
+			this.Insert (closeBtn, 8);
+			this.Insert (new SeparatorToolItem (), 9);
+			this.Insert (copyBtn, 10);
+			this.Insert (pasteBtn, 11);
+			this.Insert (cutBtn, 12);
+			this.Insert (undoBtn, 13);
+			this.Insert (redoBtn, 14);
+			this.Insert (new SeparatorToolItem (), 15);
+			this.Insert (executeBtn, 16);
 		}
 	}
 }

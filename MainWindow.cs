@@ -1,6 +1,8 @@
 ﻿using System;
 using Gtk;
 using System.IO;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace MSSQL_Assistant_for_Linux
 {
@@ -20,7 +22,7 @@ namespace MSSQL_Assistant_for_Linux
 		ScrolledWindow queryWindow;
 		public TextView queryText;
 		ScrolledWindow responseWindow;
-		public TreeView responseTable;
+		public Table responseTable;
 
 		DBStructure dataBasesStructure;
 		QueryEditor queryEditor;
@@ -68,7 +70,7 @@ namespace MSSQL_Assistant_for_Linux
 			rbox.PackStart (queryWindow, true, true, 0);
 
 			responseWindow = new ScrolledWindow ();
-			responseTable = new TreeView ();
+			responseTable = new Table (1,1,false);
 			responseWindow.Add (responseTable);
 			responseWindow.BorderWidth = 3;
 			rbox.PackStart (responseWindow, true, true, 0);
@@ -128,6 +130,8 @@ namespace MSSQL_Assistant_for_Linux
 			menubar.paste.Activated += queryEditor.OnPaste;
 			toolbar.pasteBtn.Clicked += queryEditor.OnPaste;
 
+
+
 			 keywordsColor = "blue";
 			 keywordTag = new TextTag ("keywordTag");
 			keywordTag.Foreground = keywordsColor;
@@ -145,7 +149,59 @@ namespace MSSQL_Assistant_for_Linux
 			queryText.Buffer.UserActionBegun += KeywordsHighlighting;
 			queryText.Buffer.UserActionBegun += queryEditor.OnUserActionBegun;
 
+			toolbar.executeBtn.Clicked += OnExecuteQuery;
+
 			ShowAll ();
+
+		}
+
+		void OnExecuteQuery(object o, EventArgs args)
+		{
+			string query;
+			//TreeStore responseStore = new TreeStore (typeof(string));
+			TextIter startIter;
+			TextIter finishIter;
+			//int visibleFieldCount;
+			if (queryText.Buffer.GetSelectionBounds (out startIter, out finishIter)) {
+				query = queryText.Buffer.GetText (startIter, finishIter, true);
+			} else {
+				query = queryText.Buffer.Text;
+			}
+			if (cbCurrentDB.Active != -1) {
+				int pos = query.ToLower ().IndexOf ("use " + cbCurrentDB.ActiveText.ToLower ());
+				if (pos == -1)
+					query = "USE " + cbCurrentDB.ActiveText + " " + query;
+			}
+			using (SqlConnection connection = new SqlConnection (dataBasesStructure.connectionString)) {
+				SqlCommand command = new SqlCommand(query, connection);
+				connection.Open();
+				SqlDataReader reader = command.ExecuteReader();
+				//visibleFieldCount = reader.VisibleFieldCount;
+				//TreeIter iter;
+				//responseTable.Resize(1,(uint)reader.VisibleFieldCount);
+				uint row = 1;
+				try{
+					while(reader.Read())
+					{
+						responseTable.Resize(row,(uint)reader.FieldCount);
+						for (int i=0;i<reader.FieldCount;i++){
+							responseTable.Attach(new Label(reader[i].ToString()),(uint)i,(uint)(i+1),row,row+1);
+						//responseTable.Attach(new Label(reader.GetString(3)),1,2,row,row+1);
+						}
+						row++;
+						//responseTable.Resize(row,(uint)reader.VisibleFieldCount);
+					}	
+
+				}
+				finally{
+					reader.Close ();
+				}
+			}
+
+			//responseTable.Model = responseStore;
+			//responseTable.AppendColumn("Response", new CellRendererText (), "text", 0);
+			ShowAll();
+
 
 		}
 
@@ -165,7 +221,7 @@ namespace MSSQL_Assistant_for_Linux
 				model.AppendValues(dataBasesStructure.dataBasesNames[i]);
 			}
 			cbCurrentDB.Model = model;
-
+			if (cbCurrentDB.Active==-1) cbCurrentDB.Active=0;
 			ShowAll ();
 		}
 
