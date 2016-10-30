@@ -92,11 +92,11 @@ namespace MSSQL_Assistant_for_Linux
 
 		private void getDataBasesNames()
 		{
-			string queryString = 
-				"SELECT name FROM sys.databases;";
-			using (SqlConnection connection = new SqlConnection(
-				connectionString))
+			string queryString = "SELECT name FROM sys.databases;";
+			try{
+			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
+				
 				SqlCommand command = new SqlCommand(
 					queryString, connection);
 				connection.Open();
@@ -114,6 +114,22 @@ namespace MSSQL_Assistant_for_Linux
 					// Always call Close when done reading.
 					reader.Close();
 				}
+				
+			}
+			}
+			catch(Exception e) {
+				Dialog md = new Dialog ();
+				md.Title = "Error";	
+				md.SetDefaultSize (200, 100);
+				md.AddButton (Stock.Ok, ResponseType.Ok);
+				Gtk.Image icon = new Gtk.Image (Stock.DialogError, IconSize.Dialog);
+				Label message = new Label (e.Message);
+				HBox hbox = new HBox (false,1);
+				hbox.PackStart (message);
+				hbox.PackStart (icon);
+				md.VBox.PackStart (hbox);
+				md.Run ();
+				md.Destroy();
 			}
 		}
 
@@ -130,9 +146,11 @@ namespace MSSQL_Assistant_for_Linux
 
 		private void findTablesNames(TreeIter parentIter)
 		{
+			try{
 			using (SqlConnection connection = new SqlConnection (connectionString)) {
 				string name =(string) structureStore.GetValue (parentIter, 0);
 				string questTables=	"USE "+name+" SELECT name FROM sys.tables";
+
 				SqlCommand command = new SqlCommand(questTables, connection);
 				connection.Open();
 				SqlDataReader reader = command.ExecuteReader();
@@ -148,7 +166,23 @@ namespace MSSQL_Assistant_for_Linux
 				finally{
 					reader.Close ();
 				}
+				
 			}
+			}
+		catch(Exception e) {
+			Dialog md = new Dialog ();
+			md.Title = "Error";	
+			md.SetDefaultSize (200, 100);
+			md.AddButton (Stock.Ok, ResponseType.Ok);
+			Gtk.Image icon = new Gtk.Image (Stock.DialogError, IconSize.Dialog);
+			Label message = new Label (e.Message);
+			HBox hbox = new HBox (false,1);
+			hbox.PackStart (message);
+			hbox.PackStart (icon);
+			md.VBox.PackStart (hbox);
+			md.Run ();
+			md.Destroy();
+		}
 		}
 
 		private void updateDialog (string format, params object[] args)
@@ -159,15 +193,13 @@ namespace MSSQL_Assistant_for_Linux
 			{
 				dialog = new Dialog ();
 				dialog.Title = "Loading data from databases...";
-				//dialog.AddButton (Stock.Cancel, 1);
-				//dialog.Response += new ResponseHandler (ResponseCB);
+
 				dialog.SetDefaultSize (453, 174);
 
 				VBox vbox = dialog.VBox;
 			
-
 				Gtk.Image icon=new Gtk.Image();
-				Gdk.Pixbuf pic = new Gdk.Pixbuf("/home/viachpaliy/MSSQL_Assistant_for_Linux/MSSQL_Assistant_for_Linux/res/MSSQL.png");
+				Gdk.Pixbuf pic = new Gdk.Pixbuf("res/MSSQL.png");
 				icon.Pixbuf = pic;
 				vbox.PackStart (icon, false, false, 0);
 				dialogLabel = new Label (text);
@@ -181,10 +213,7 @@ namespace MSSQL_Assistant_for_Linux
 		}
 
 
-		private  void ResponseCB (object obj, ResponseArgs args)
-		{
-			
-		}
+	
 
 
 		private void getColumnsNames()
@@ -213,51 +242,14 @@ namespace MSSQL_Assistant_for_Linux
 		}
 
 
-		private void seekColumnesNames(TreeIter Iter,TreeIter parentIter)
-		{
-			using (SqlConnection connection = new SqlConnection (
-				                                  connectionString)) {
-				string name = (string)structureStore.GetValue (Iter, 0);
-				string dbname = (string)structureStore.GetValue (parentIter, 0);
-				string commandText = "USE " + dbname +
-				                    "SELECT * FROM " + name;
-				
-				SqlCommand command = new SqlCommand(commandText , connection);
-				connection.Open();
-				SqlDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
-
-
-				try{
-				//Retrieve column schema into a DataTable.
-				 var schemaTable = reader.GetSchemaTable();
-
-				//For each field in the table...
-				//foreach (DataRow myField in schemaTable.Rows) {
-					//For each property of the field...
-						//TreeIter it=structureStore.AppendValues (Iter,myField [ColumnName].ToString());
-					foreach (DataColumn myProperty in schemaTable.Columns) {
-						//Display the field name and value.
-						//Console.WriteLine (myProperty.ColumnName + " = " + myField [myProperty].ToString ());
-//							TreeIter it=structureStore.AppendValues (Iter,myProperty.ColumnName);
-//							structureStore.AppendValues(it,myProperty.DataType.ToString());
-//							if (myProperty.AutoIncrement) {structureStore.AppendValues(it,"AUTOINCREMENT");}
-//							if (myProperty.AllowDBNull) {structureStore.AppendValues(it," NULL");}
-					//}
-				}
-
-				}
-				finally{
-					reader.Close ();
-				}
-
-			}
-		}
+	
 
 		private void findColumnesNames(TreeIter Iter,TreeIter parentIter)
 		{
+			try{
+			using (SqlConnection connection = new SqlConnection (connectionString)) {
 
-			using (SqlConnection connection = new SqlConnection (
-				connectionString)) {
+
 				string name =(string) structureStore.GetValue (Iter, 0);
 				string dbname=(string) structureStore.GetValue (parentIter, 0);
 
@@ -266,10 +258,11 @@ namespace MSSQL_Assistant_for_Linux
 				                    " c.is_nullable ," +
 				                    " ISNULL(i.is_primary_key, 0) " +
 				                    " FROM sys.columns c INNER JOIN sys.types t ON c.user_type_id = t.user_type_id " +
-				                    " LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id" +
+				                   " LEFT OUTER JOIN sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id" +
 				                    " LEFT OUTER JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id" +
-				                    " WHERE c.object_id = OBJECT_ID('"+dbname +".dbo."+ name +"')";
-			
+				               		" WHERE c.object_id = OBJECT_ID('"+dbname +".dbo."+ name +"')";
+					
+
 				SqlCommand command = new SqlCommand(questTables, connection);
 				connection.Open();
 				SqlDataReader reader = command.ExecuteReader();
@@ -288,7 +281,25 @@ namespace MSSQL_Assistant_for_Linux
 				finally{
 					reader.Close ();
 				}
-				}
+				
+			}
+			}
+
+			catch(Exception e) {
+				Dialog md = new Dialog ();
+				md.Title = "Error";	
+				md.SetDefaultSize (200, 100);
+				md.AddButton (Stock.Ok, ResponseType.Ok);
+				Gtk.Image icon = new Gtk.Image (Stock.DialogError, IconSize.Dialog);
+				Label message = new Label (e.Message);
+				HBox hbox = new HBox (false,1);
+				hbox.PackStart (message);
+				hbox.PackStart (icon);
+				md.VBox.PackStart (hbox);
+				md.Run ();
+				md.Destroy();
+			}
+
 		}
 
 

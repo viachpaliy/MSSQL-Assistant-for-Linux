@@ -140,12 +140,12 @@ namespace MSSQL_Assistant_for_Linux
 			queryText.Buffer.TagTable.Add (keywordTag);
 			namesTag = new TextTag ("namesTag");
 			namesTag.Foreground = "green";
-
+			queryText.Buffer.TagTable.Add (namesTag);
 
 			queryText.Buffer.Changed+=queryEditor.OnTextChanged;
 			queryText.Buffer.UserActionBegun += queryEditor.OnUserActionBegun;
-			queryText.Buffer.Changed += highlightingSQLkeywords;
-			queryText.Buffer.Changed += highlightingNames;
+			queryText.Buffer.UserActionBegun += highlightingSQLkeywords;
+			queryText.Buffer.UserActionBegun += highlightingNames;
 
 			toolbar.executeBtn.Clicked += OnExecuteQuery;
 
@@ -170,18 +170,20 @@ namespace MSSQL_Assistant_for_Linux
 				if (pos == -1)
 					query = "USE " + cbCurrentDB.ActiveText + " " + query;
 			}
+			try{
 			using (SqlConnection connection = new SqlConnection (dataBasesStructure.connectionString)) {
-				SqlCommand command = new SqlCommand(query, connection);
+				SqlCommand command;
+				SqlDataReader reader;
+
+				 command = new SqlCommand(query, connection);
 				connection.Open();
-				SqlDataReader reader = command.ExecuteReader();
+			   reader = command.ExecuteReader();
 				viewer.Remove (responseTable);
 				responseTable = new Table (1, 1, false);
 				viewer.Add (responseTable);
-				//responseWindow.AddWithViewport (responseTable);
 
-				//responseWindow.Add (responseTable);
 				uint row = 1;
-				try{
+					try{
 					while(reader.Read())
 					{
 						responseTable.Resize(row,(uint)reader.FieldCount);
@@ -192,13 +194,25 @@ namespace MSSQL_Assistant_for_Linux
 						row++;
 
 					}	
-
+											
 				}
+				
 				finally{
 					reader.Close ();
 				}
+							
 			}
-
+			}
+			catch(Exception e) {
+				MessageDialog md = new MessageDialog (this,
+					DialogFlags.DestroyWithParent,
+					MessageType.Error,
+					ButtonsType.Ok,
+					e.Message);
+				md.Run ();
+				md.Destroy();
+				responseTable.Attach (new Label (e.Message), 0, 2, 0, 2);
+			}
 		
 			ShowAll();
 
@@ -213,7 +227,7 @@ namespace MSSQL_Assistant_for_Linux
 			var column = tvDBStructure.GetColumn (0);
 			if (column != null)
 				tvDBStructure.RemoveColumn (column);
-			tvDBStructure.AppendColumn ("Database", new CellRendererText (), "text", 0);
+			tvDBStructure.AppendColumn ("Database structure", new CellRendererText (), "text", 0);
 
 
 			var model = new Gtk.ListStore (typeof(string));
@@ -235,17 +249,17 @@ namespace MSSQL_Assistant_for_Linux
 				"sqlexec","sqlcommit","revoke","rollback","sqlrollback","values","sqldisconnect","sqlconnect",
 				"user","system_user","use","schema_name","schemata","information_schema","dbo","guest",
 				"db_owner",	"db_","table","@@","Users","execute","sysname","sp_who","sysobjects","sp_",
-				"sysprocesses ","master","sys","db_","is_","exec", "end", "xp_","; --", "/*", "*/", "alter",
-				"begin", "cursor", "kill","--" ,"tabname","or","sys","for"};
+				"sysprocesses ","sys","db_","is_","exec", "end", "xp_","; --", "/*", "*/", "alter",
+				"begin", "cursor", "kill","--" ,"tabname","or","sys","for","from"};
 			foreach (string item in keywords) {
 				startpos = 0;
 				exit = false;
 				do {
-					pos=queryText.Buffer.Text.ToLower().IndexOf(item,startpos);
+					pos=queryText.Buffer.Text.ToLower().IndexOf(" "+item+" ",startpos);
 					if (pos==-1){exit=true;}
 					else{
-						queryText.Buffer.ApplyTag(keywordTag,queryText.Buffer.GetIterAtOffset(pos),
-							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+						queryText.Buffer.ApplyTag(keywordTag,queryText.Buffer.GetIterAtOffset(pos+1),
+							queryText.Buffer.GetIterAtOffset(pos+1+item.Length));
 							startpos=pos+item.Length;
 					}
 					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
