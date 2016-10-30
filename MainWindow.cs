@@ -22,14 +22,14 @@ namespace MSSQL_Assistant_for_Linux
 		ScrolledWindow queryWindow;
 		public TextView queryText;
 		ScrolledWindow responseWindow;
+		Viewport viewer;
 		public Table responseTable;
 
 		DBStructure dataBasesStructure;
 		QueryEditor queryEditor;
-
-		string[] keywords;
-		string keywordsColor;
+			
 		TextTag keywordTag;
+		TextTag namesTag;
 
 		public MainWindow (string title):base(title)
 		{
@@ -70,8 +70,10 @@ namespace MSSQL_Assistant_for_Linux
 			rbox.PackStart (queryWindow, true, true, 0);
 
 			responseWindow = new ScrolledWindow ();
+			viewer = new Viewport ();
 			responseTable = new Table (1,1,false);
-			responseWindow.Add (responseTable);
+			viewer.Add (responseTable);
+			responseWindow.Add (viewer);
 			responseWindow.BorderWidth = 3;
 			rbox.PackStart (responseWindow, true, true, 0);
 
@@ -132,22 +134,18 @@ namespace MSSQL_Assistant_for_Linux
 
 
 
-			 keywordsColor = "blue";
-			 keywordTag = new TextTag ("keywordTag");
-			keywordTag.Foreground = keywordsColor;
-			queryText.Buffer.TagTable.Add (keywordTag);
 
-			keywords=new string[]{ "create","select", "drop", "delete", "insert", "update", "truncate",
-				"grant ","print","sp_executesql ","objects","declare","table","into","sqlcancel","sqlsetprop",
-				"sqlexec","sqlcommit","revoke","rollback","sqlrollback","values","sqldisconnect","sqlconnect",
-				"user","system_user","use","schema_name","schemata","information_schema","dbo","guest",
-				"db_owner",	"db_","table","@@","Users","execute","sysname","sp_who","sysobjects","sp_",
-				"sysprocesses ","master","sys","db_","is_","exec", "end", "xp_","; --", "/*", "*/", "alter",
-				"begin", "cursor", "kill","--" ,"tabname","or","sys"};
+			 keywordTag = new TextTag ("keywordTag");
+			keywordTag.Foreground = "blue";
+			queryText.Buffer.TagTable.Add (keywordTag);
+			namesTag = new TextTag ("namesTag");
+			namesTag.Foreground = "green";
+
 
 			queryText.Buffer.Changed+=queryEditor.OnTextChanged;
-			queryText.Buffer.UserActionBegun += KeywordsHighlighting;
 			queryText.Buffer.UserActionBegun += queryEditor.OnUserActionBegun;
+			queryText.Buffer.Changed += highlightingSQLkeywords;
+			queryText.Buffer.Changed += highlightingNames;
 
 			toolbar.executeBtn.Clicked += OnExecuteQuery;
 
@@ -158,10 +156,10 @@ namespace MSSQL_Assistant_for_Linux
 		void OnExecuteQuery(object o, EventArgs args)
 		{
 			string query;
-			//TreeStore responseStore = new TreeStore (typeof(string));
+
 			TextIter startIter;
 			TextIter finishIter;
-			//int visibleFieldCount;
+
 			if (queryText.Buffer.GetSelectionBounds (out startIter, out finishIter)) {
 				query = queryText.Buffer.GetText (startIter, finishIter, true);
 			} else {
@@ -176,9 +174,12 @@ namespace MSSQL_Assistant_for_Linux
 				SqlCommand command = new SqlCommand(query, connection);
 				connection.Open();
 				SqlDataReader reader = command.ExecuteReader();
-				//visibleFieldCount = reader.VisibleFieldCount;
-				//TreeIter iter;
-				//responseTable.Resize(1,(uint)reader.VisibleFieldCount);
+				viewer.Remove (responseTable);
+				responseTable = new Table (1, 1, false);
+				viewer.Add (responseTable);
+				//responseWindow.AddWithViewport (responseTable);
+
+				//responseWindow.Add (responseTable);
 				uint row = 1;
 				try{
 					while(reader.Read())
@@ -186,10 +187,10 @@ namespace MSSQL_Assistant_for_Linux
 						responseTable.Resize(row,(uint)reader.FieldCount);
 						for (int i=0;i<reader.FieldCount;i++){
 							responseTable.Attach(new Label(reader[i].ToString()),(uint)i,(uint)(i+1),row,row+1);
-						//responseTable.Attach(new Label(reader.GetString(3)),1,2,row,row+1);
+						
 						}
 						row++;
-						//responseTable.Resize(row,(uint)reader.VisibleFieldCount);
+
 					}	
 
 				}
@@ -198,8 +199,7 @@ namespace MSSQL_Assistant_for_Linux
 				}
 			}
 
-			//responseTable.Model = responseStore;
-			//responseTable.AppendColumn("Response", new CellRendererText (), "text", 0);
+		
 			ShowAll();
 
 
@@ -225,11 +225,18 @@ namespace MSSQL_Assistant_for_Linux
 			ShowAll ();
 		}
 
-		public void KeywordsHighlighting(object sender,EventArgs args)
+		public void highlightingSQLkeywords(object sender,EventArgs args)
 		{
 			int pos, startpos;
 			bool exit;
 
+			string[] keywords=new string[]{ "create","select", "drop", "delete", "insert", "update", "truncate",
+				"grant ","print","sp_executesql ","objects","declare","table","into","sqlcancel","sqlsetprop",
+				"sqlexec","sqlcommit","revoke","rollback","sqlrollback","values","sqldisconnect","sqlconnect",
+				"user","system_user","use","schema_name","schemata","information_schema","dbo","guest",
+				"db_owner",	"db_","table","@@","Users","execute","sysname","sp_who","sysobjects","sp_",
+				"sysprocesses ","master","sys","db_","is_","exec", "end", "xp_","; --", "/*", "*/", "alter",
+				"begin", "cursor", "kill","--" ,"tabname","or","sys","for"};
 			foreach (string item in keywords) {
 				startpos = 0;
 				exit = false;
@@ -246,6 +253,61 @@ namespace MSSQL_Assistant_for_Linux
 			}
 		}
 
+
+		public void highlightingNames(object sender,EventArgs args)
+		{
+			int pos, startpos;
+			bool exit;
+			//highlighting databases names
+			foreach (string item in dataBasesStructure.dataBasesNames) {
+				startpos = 0;
+				exit = false;
+				do {
+					pos=queryText.Buffer.Text.IndexOf(item,startpos);
+					if (pos==-1){exit=true;}
+					else{
+						queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+						startpos=pos+item.Length;
+					}
+					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
+				} while(!exit);
+			}
+
+			//highlighting tables names
+			foreach (string item in dataBasesStructure.tablesNames) {
+				startpos = 0;
+				exit = false;
+				do {
+					pos=queryText.Buffer.Text.IndexOf(item,startpos);
+					if (pos==-1){exit=true;}
+					else{
+						queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+						startpos=pos+item.Length;
+					}
+					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
+				} while(!exit);
+			}
+
+
+			//highlighting columnes names
+			foreach (string item in dataBasesStructure.columnsNames) {
+				startpos = 0;
+				exit = false;
+				do {
+					pos=queryText.Buffer.Text.IndexOf(item,startpos);
+					if (pos==-1){exit=true;}
+					else{
+						queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+						startpos=pos+item.Length;
+					}
+					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
+				} while(!exit);
+			}
+
+		}
 
 
 	}
