@@ -3,11 +3,12 @@ using Gtk;
 
 namespace MSSQL_Assistant_for_Linux
 {
-	public class AssistantToolbar:Toolbar
+	public partial class MsSqlAssistant : Gtk.Window
 	{
-		public ToolButton newConnection;
-		public ToolButton updateConnection;
-		public ToolButton closeConnection;
+		Toolbar toolbar;
+		public ToolButton newConnectionBtn;
+		public ToolButton updateConnectionBtn;
+		public ToolButton closeConnectionBtn;
 		
 		public ToolButton newBtn;
 		public ToolButton openBtn;
@@ -24,14 +25,15 @@ namespace MSSQL_Assistant_for_Linux
 
 		public ToolButton executeBtn;
 
-		public AssistantToolbar ()
+		 void createAssistantToolbar ()
 		{
-			newConnection = new ToolButton (Stock.Connect);
-			newConnection.TooltipText="Open connection";
-			updateConnection = new ToolButton (Stock.Refresh);
-			updateConnection.TooltipText = "Update connection";
-			closeConnection = new ToolButton (Stock.Disconnect);
-			closeConnection.TooltipText = "Close connection";
+			toolbar = new Toolbar ();
+			newConnectionBtn = new ToolButton (Stock.Connect);
+			newConnectionBtn.TooltipText="Open connection";
+			updateConnectionBtn = new ToolButton (Stock.Refresh);
+			updateConnectionBtn.TooltipText = "Update connection";
+			closeConnectionBtn = new ToolButton (Stock.Disconnect);
+			closeConnectionBtn.TooltipText = "Close connection";
 
 			newBtn = new ToolButton (Stock.New);
 			newBtn.TooltipText = "New query";
@@ -58,23 +60,54 @@ namespace MSSQL_Assistant_for_Linux
 			executeBtn = new ToolButton (Stock.Execute);
 			executeBtn.TooltipText = "Query execute";
 
-			this.Insert (newConnection, 0);
-			this.Insert (updateConnection, 1);
-			this.Insert (closeConnection, 2);
-			this.Insert (new SeparatorToolItem (), 3);
-			this.Insert (newBtn, 4);
-			this.Insert (openBtn, 5);
-			this.Insert (saveBtn, 6);
-			this.Insert (saveAsBtn, 7);
-			this.Insert (closeBtn, 8);
-			this.Insert (new SeparatorToolItem (), 9);
-			this.Insert (copyBtn, 10);
-			this.Insert (pasteBtn, 11);
-			this.Insert (cutBtn, 12);
-			this.Insert (undoBtn, 13);
-			this.Insert (redoBtn, 14);
-			this.Insert (new SeparatorToolItem (), 15);
-			this.Insert (executeBtn, 16);
+			toolbar.Insert (newConnectionBtn, 0);
+			toolbar.Insert (updateConnectionBtn, 1);
+			toolbar.Insert (closeConnectionBtn, 2);
+			toolbar.Insert (new SeparatorToolItem (), 3);
+			toolbar.Insert (newBtn, 4);
+			toolbar.Insert (openBtn, 5);
+			toolbar.Insert (saveBtn, 6);
+			toolbar.Insert (saveAsBtn, 7);
+			toolbar.Insert (closeBtn, 8);
+			toolbar.Insert (new SeparatorToolItem (), 9);
+			toolbar.Insert (copyBtn, 10);
+			toolbar.Insert (pasteBtn, 11);
+			toolbar.Insert (cutBtn, 12);
+			toolbar.Insert (undoBtn, 13);
+			toolbar.Insert (redoBtn, 14);
+			toolbar.Insert (new SeparatorToolItem (), 15);
+			toolbar.Insert (executeBtn, 16);
+
+			newConnectionBtn.Clicked += OnNewConnect;
+			newConnectionBtn.Clicked += updateDBStructure;
+
+			updateConnectionBtn.Clicked += OnUpdateConnect;
+			updateConnectionBtn.Clicked += updateDBStructure;
+
+			closeConnectionBtn.Clicked += OnCloseConnect;
+
+			newBtn.Clicked += OnNew;
+
+			openBtn.Clicked += OnOpen;
+						
+			saveBtn.Clicked += OnSave;
+
+			saveAsBtn.Clicked += OnSaveAs;
+
+			closeBtn.Clicked += OnClose;
+
+			undoBtn.Clicked += OnUndo;
+
+			redoBtn.Clicked += OnRedo;
+
+			copyBtn.Clicked += OnCopy;
+
+			cutBtn.Clicked += OnCut;
+
+			pasteBtn.Clicked += OnPaste;
+
+			executeBtn.Clicked += OnExecuteQuery;
+
 		}
 	}
 }

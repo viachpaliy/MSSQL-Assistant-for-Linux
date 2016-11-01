@@ -5,10 +5,10 @@ using Pango;
 
 namespace MSSQL_Assistant_for_Linux
 {
-	public class QueryEditor
+	public partial class MsSqlAssistant : Gtk.Window
 	{
-		public TextBuffer textBuffer{ get; set;}
-		public Window parent{ get; set;}
+		//public TextBuffer textBuffer{ get; set;}
+		//public Window parent{ get; set;}
 		bool isSaved;
 		public Stack<string> undoStack;
 		public Stack<string> redoStack;
@@ -16,7 +16,7 @@ namespace MSSQL_Assistant_for_Linux
 		public string fileName;
 	
 
-		public QueryEditor ()
+		public void initQueryEditor ()
 		{
 			undoStack = new Stack<string> ();
 			redoStack = new Stack<string> ();
@@ -42,30 +42,30 @@ namespace MSSQL_Assistant_for_Linux
 				dialog.ShowAll ();
 				int response = dialog.Run ();
 				if (response == (int)ResponseType.Ok) {
-					System.IO.File.WriteAllText (fileName, textBuffer.Text);
+					System.IO.File.WriteAllText (fileName, queryText.Buffer.Text);
 				}
 
 				dialog.Destroy ();
-				textBuffer.Clear ();
+				queryText.Buffer.Clear ();
 			}
 		}
 
 
 		public void OnPaste(object sender, EventArgs args)
 		{			
-			textBuffer.InsertAtCursor (clipboard);
+			queryText.Buffer.InsertAtCursor (clipboard);
 		}
 
 		public void OnCut(object sender, EventArgs args)
 		{
 			TextIter startIter;
 			TextIter finishIter;
-			if (textBuffer.GetSelectionBounds (out startIter, out finishIter)) {
-				clipboard = textBuffer.GetText (startIter, finishIter, true);
+			if (queryText.Buffer.GetSelectionBounds (out startIter, out finishIter)) {
+				clipboard = queryText.Buffer.GetText (startIter, finishIter, true);
 
-				undoStack.Push (textBuffer.Text);
+				undoStack.Push (queryText.Buffer.Text);
 
-				textBuffer.Delete (ref startIter, ref finishIter);
+				queryText.Buffer.Delete (ref startIter, ref finishIter);
 			}
 
 		}
@@ -74,32 +74,32 @@ namespace MSSQL_Assistant_for_Linux
 		{
 			TextIter startIter;
 			TextIter finishIter;
-			if (textBuffer.GetSelectionBounds (out startIter, out finishIter)) {
-				clipboard = textBuffer.GetText (startIter, finishIter, true);
+			if (queryText.Buffer.GetSelectionBounds (out startIter, out finishIter)) {
+				clipboard = queryText.Buffer.GetText (startIter, finishIter, true);
 
 			}
 		}
 
 		public void OnRedo(object sender, EventArgs args)
 		{
-			undoStack.Push (textBuffer.Text);
+			undoStack.Push (queryText.Buffer.Text);
 
-			if (redoStack.Count>0)	textBuffer.Text = redoStack.Pop ();
+			if (redoStack.Count>0)	queryText.Buffer.Text = redoStack.Pop ();
 
 
 		}
 
 		public void OnUndo(object sender, EventArgs args)
 		{
-			redoStack.Push (textBuffer.Text);
+			redoStack.Push (queryText.Buffer.Text);
 
-			if (undoStack.Count>0)	textBuffer.Text = undoStack.Pop ();
+			if (undoStack.Count>0)	queryText.Buffer.Text = undoStack.Pop ();
 
 		}
 
 		public void OnUserActionBegun(object sender, EventArgs args)
 		{
-			undoStack.Push (textBuffer.Text);
+			undoStack.Push (queryText.Buffer.Text);
 
 		}
 
@@ -124,16 +124,16 @@ namespace MSSQL_Assistant_for_Linux
 				dialog.ShowAll ();
 				int response = dialog.Run ();
 				if (response == (int)ResponseType.Ok) {
-					System.IO.File.WriteAllText (fileName, textBuffer.Text);
+					System.IO.File.WriteAllText (fileName, queryText.Buffer.Text);
 				}
 				if (response == (int)ResponseType.Cancel) {
 					cancel = true;}
 				dialog.Destroy ();
 			}
 			if (!cancel) {
-				textBuffer.Clear ();
+				queryText.Buffer.Clear ();
 				fileName =  "Untitled";
-				parent.Title = fileName;
+				this.Title ="MSSQL Asistant - "+ fileName;
 				isSaved = true;
 
 				undoStack.Clear ();
@@ -145,7 +145,7 @@ namespace MSSQL_Assistant_for_Linux
 		public void OnSave(object sender, EventArgs args)
 		{
 			if (fileName != "Untitled") {
-				System.IO.File.WriteAllText (fileName, textBuffer.Text);
+				System.IO.File.WriteAllText (fileName, queryText.Buffer.Text);
 				isSaved = true;
 			} else
 				OnSaveAs (sender, args);
@@ -158,15 +158,15 @@ namespace MSSQL_Assistant_for_Linux
 
 			Gtk.FileChooserDialog filechooser =
 				new Gtk.FileChooserDialog ("Save file",
-					parent,
+					this,
 					FileChooserAction.Save);
 			filechooser.AddButton(Stock.Cancel, ResponseType.Cancel);
 			filechooser.AddButton(Stock.Save, ResponseType.Ok);
 
 			if (filechooser.Run () == (int)ResponseType.Ok) {
-				System.IO.File.WriteAllText (filechooser.Filename, textBuffer.Text);
+				System.IO.File.WriteAllText (filechooser.Filename, queryText.Buffer.Text);
 				fileName=filechooser.Filename;
-				parent.Title = fileName;
+				this.Title ="MSSQL Asistant - " + fileName;
 				isSaved = true;
 
 			}
@@ -189,7 +189,7 @@ namespace MSSQL_Assistant_for_Linux
 				dialog.ShowAll ();
 				int response = dialog.Run ();
 				if (response == (int)ResponseType.Ok) {
-					System.IO.File.WriteAllText (fileName, textBuffer.Text);
+					System.IO.File.WriteAllText (fileName, queryText.Buffer.Text);
 				}
 				if (response == (int)ResponseType.Cancel) {
 					cancel = true;
@@ -201,7 +201,7 @@ namespace MSSQL_Assistant_for_Linux
 
 				Gtk.FileChooserDialog filechooser =
 					new Gtk.FileChooserDialog ("Choose the file to open",
-						parent,
+						this,
 						FileChooserAction.Open
 					);
 				filechooser.Visible = true;
@@ -211,12 +211,12 @@ namespace MSSQL_Assistant_for_Linux
 				if (filechooser.Run () == (int)ResponseType.Ok) {
 
 					fileName = filechooser.Filename;
-					textBuffer.Text = System.IO.File.ReadAllText (filechooser.Filename);
+					queryText.Buffer.Text = System.IO.File.ReadAllText (filechooser.Filename);
 
 				}
 
 				filechooser.Destroy ();
-				parent.Title = fileName;
+				this.Title ="MSSQL Assistant - " + fileName;
 				isSaved = true;
 			
 				undoStack.Clear ();

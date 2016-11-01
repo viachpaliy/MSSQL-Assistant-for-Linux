@@ -6,11 +6,11 @@ using System.Data.SqlClient;
 
 namespace MSSQL_Assistant_for_Linux
 {
-	public class MainWindow : Gtk.Window
+	public partial class MsSqlAssistant : Gtk.Window
 	{
 		VBox vbox;
-		public AssistantMenuBar menubar;
-		public AssistantToolbar toolbar;
+		//public AssistantMenuBar menubar;
+		//public AssistantToolbar toolbar;
 		HBox hbox;
 		VBox lbox;
 		VBox rbox;
@@ -25,13 +25,13 @@ namespace MSSQL_Assistant_for_Linux
 		Viewport viewer;
 		public Table responseTable;
 
-		DBStructure dataBasesStructure;
-		QueryEditor queryEditor;
+		//DBStructure dataBasesStructure;
+		//QueryEditor queryEditor;
 			
 		TextTag keywordTag;
 		TextTag namesTag;
 
-		public MainWindow (string title):base(title)
+		public MsSqlAssistant (string title):base(title)
 		{
 			DefaultHeight = 640;
 			DefaultWidth = 1000;
@@ -39,9 +39,11 @@ namespace MSSQL_Assistant_for_Linux
 			Gdk.Pixbuf icon = new Gdk.Pixbuf ("res/icona.png");
 			this.Icon = icon;
 			vbox = new VBox (false,1);
-			menubar = new AssistantMenuBar ();
+			//menubar = new AssistantMenuBar ();
+			createAssistantMenuBar();
 			vbox.PackStart (menubar, false, true, 0);
-			toolbar = new AssistantToolbar ();
+			//toolbar = new AssistantToolbar ();
+			createAssistantToolbar();
 			vbox.PackStart (toolbar, false, true, 0);
 			hbox = new HBox (false, 1);
 			vbox.PackStart (hbox, true, true, 0);
@@ -83,71 +85,27 @@ namespace MSSQL_Assistant_for_Linux
 			vbox.PackStart (hbox, true, true, 0);
 			Add (vbox);
 
-		    dataBasesStructure = new DBStructure ();
-		
-			queryEditor = new QueryEditor ();
-			queryEditor.parent = this;
-			queryEditor.textBuffer = queryText.Buffer;
+		    //dataBasesStructure = new DBStructure ();
+			createDBStructure();
 
+//			queryEditor = new QueryEditor ();
+//			queryEditor.parent = this;
+//			queryEditor.textBuffer = queryText.Buffer;
+			initQueryEditor();
 
-			menubar.newConnection.Activated += dataBasesStructure.OnNewConnect;
-			menubar.newConnection.Activated += updateDBStructure;
-
-			toolbar.newConnection.Clicked += dataBasesStructure.OnNewConnect;
-			toolbar.newConnection.Clicked += updateDBStructure;
-
-			menubar.updateConnection.Activated+=dataBasesStructure.OnUpdateConnect;
-			menubar.updateConnection.Activated+=updateDBStructure;
-
-			toolbar.updateConnection.Clicked += dataBasesStructure.OnUpdateConnect;
-			toolbar.updateConnection.Clicked += updateDBStructure;
-
-			menubar.newQuery.Activated += queryEditor.OnNew;
-			toolbar.newBtn.Clicked += queryEditor.OnNew;
-
-			menubar.open.Activated += queryEditor.OnOpen;
-			toolbar.openBtn.Clicked += queryEditor.OnOpen;
-
-			menubar.save.Activated += queryEditor.OnSave;
-			toolbar.saveBtn.Clicked += queryEditor.OnSave;
-
-			menubar.saveAs.Activated += queryEditor.OnSaveAs;
-			toolbar.saveAsBtn.Clicked += queryEditor.OnSaveAs;
-
-			menubar.close.Activated += queryEditor.OnClose;
-			toolbar.closeBtn.Clicked += queryEditor.OnClose;
-
-			menubar.undo.Activated += queryEditor.OnUndo;
-			toolbar.undoBtn.Clicked += queryEditor.OnUndo;
-
-			menubar.redo.Activated += queryEditor.OnRedo;
-			toolbar.redoBtn.Clicked += queryEditor.OnRedo;
-
-			menubar.copy.Activated += queryEditor.OnCopy;
-			toolbar.copyBtn.Clicked += queryEditor.OnCopy;
-
-			menubar.cut.Activated += queryEditor.OnCut;
-			toolbar.cutBtn.Clicked += queryEditor.OnCut;
-
-			menubar.paste.Activated += queryEditor.OnPaste;
-			toolbar.pasteBtn.Clicked += queryEditor.OnPaste;
-
-
-
-
-			 keywordTag = new TextTag ("keywordTag");
+			keywordTag = new TextTag ("keywordTag");
 			keywordTag.Foreground = "blue";
 			queryText.Buffer.TagTable.Add (keywordTag);
 			namesTag = new TextTag ("namesTag");
 			namesTag.Foreground = "green";
 			queryText.Buffer.TagTable.Add (namesTag);
 
-			queryText.Buffer.Changed+=queryEditor.OnTextChanged;
-			queryText.Buffer.UserActionBegun += queryEditor.OnUserActionBegun;
+			queryText.Buffer.Changed+=OnTextChanged;
+			queryText.Buffer.UserActionBegun += OnUserActionBegun;
 			queryText.Buffer.UserActionBegun += highlightingSQLkeywords;
 			queryText.Buffer.UserActionBegun += highlightingNames;
 
-			toolbar.executeBtn.Clicked += OnExecuteQuery;
+
 
 			ShowAll ();
 
@@ -171,7 +129,9 @@ namespace MSSQL_Assistant_for_Linux
 					query = "USE " + cbCurrentDB.ActiveText + " " + query;
 			}
 			try{
-			using (SqlConnection connection = new SqlConnection (dataBasesStructure.connectionString)) {
+				if(!String.IsNullOrEmpty(connectionString) || !String.IsNullOrWhiteSpace(connectionString))
+				{connection = new SqlConnection (connectionString);}
+			using ( connection ) {
 				SqlCommand command;
 				SqlDataReader reader;
 
@@ -211,6 +171,8 @@ namespace MSSQL_Assistant_for_Linux
 					e.Message);
 				md.Run ();
 				md.Destroy();
+				viewer.Remove (responseTable);
+				responseTable = new Table (1, 1, false);
 				responseTable.Attach (new Label (e.Message), 0, 2, 0, 2);
 			}
 		
@@ -222,7 +184,7 @@ namespace MSSQL_Assistant_for_Linux
 		void updateDBStructure(object o, EventArgs args)
 		{
 			
-			tvDBStructure.Model = dataBasesStructure.structureStore;
+			tvDBStructure.Model = structureStore;
 			tvDBStructure.HeadersVisible = true;
 			var column = tvDBStructure.GetColumn (0);
 			if (column != null)
@@ -231,8 +193,8 @@ namespace MSSQL_Assistant_for_Linux
 
 
 			var model = new Gtk.ListStore (typeof(string));
-			for (int i=0;i<dataBasesStructure.dataBasesNames.Count;i++) {
-				model.AppendValues(dataBasesStructure.dataBasesNames[i]);
+			for (int i=0;i<dataBasesNames.Count;i++) {
+				model.AppendValues(dataBasesNames[i]);
 			}
 			cbCurrentDB.Model = model;
 			if (cbCurrentDB.Active==-1) cbCurrentDB.Active=0;
@@ -273,7 +235,7 @@ namespace MSSQL_Assistant_for_Linux
 			int pos, startpos;
 			bool exit;
 			//highlighting databases names
-			foreach (string item in dataBasesStructure.dataBasesNames) {
+			foreach (string item in dataBasesNames) {
 				startpos = 0;
 				exit = false;
 				do {
@@ -289,7 +251,7 @@ namespace MSSQL_Assistant_for_Linux
 			}
 
 			//highlighting tables names
-			foreach (string item in dataBasesStructure.tablesNames) {
+			foreach (string item in tablesNames) {
 				startpos = 0;
 				exit = false;
 				do {
@@ -306,7 +268,7 @@ namespace MSSQL_Assistant_for_Linux
 
 
 			//highlighting columnes names
-			foreach (string item in dataBasesStructure.columnsNames) {
+			foreach (string item in columnsNames) {
 				startpos = 0;
 				exit = false;
 				do {

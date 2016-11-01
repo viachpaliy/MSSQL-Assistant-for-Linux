@@ -6,8 +6,9 @@ using System.Data.SqlClient;
 
 namespace MSSQL_Assistant_for_Linux
 {
-	public class DBStructure
+	public partial class MsSqlAssistant : Gtk.Window
 	{
+		SqlConnection connection;
 		public string connectionString;
 		public TreeStore structureStore;
 		public List<string> dataBasesNames;
@@ -18,7 +19,7 @@ namespace MSSQL_Assistant_for_Linux
 		private static Label dialogLabel = null;
 		private static ConnectDialog connectDialog=null;
 
-		public DBStructure ()
+		public void createDBStructure ()
 		{
 			structureStore=new TreeStore(typeof(string));
 			dataBasesNames = new List<string> ();
@@ -26,9 +27,27 @@ namespace MSSQL_Assistant_for_Linux
 			columnsNames = new List<string> ();
 		}
 
+
+		void OnCloseConnect(object o, EventArgs args)
+		{
+			connectionString = null;
+			connection = null;
+			structureStore.Clear ();
+			dataBasesNames.Clear ();
+			tablesNames.Clear ();
+			columnsNames.Clear ();
+			tvDBStructure.Model = structureStore;
+			var column = tvDBStructure.GetColumn (0);
+			if (column != null) {
+				tvDBStructure.RemoveColumn (column);
+			}
+		}
+
 		public void OnNewConnect(object o, EventArgs args)
 		{
 			getConnectionString ();
+			if(!String.IsNullOrEmpty(connectionString) || !String.IsNullOrWhiteSpace(connectionString))
+			{connection = new SqlConnection (connectionString);}
 			getDataBasesStructure ();
 
 		}
@@ -94,7 +113,9 @@ namespace MSSQL_Assistant_for_Linux
 		{
 			string queryString = "SELECT name FROM sys.databases;";
 			try{
-			using (SqlConnection connection = new SqlConnection(connectionString))
+				if(!String.IsNullOrEmpty(connectionString) || !String.IsNullOrWhiteSpace(connectionString))
+				{connection = new SqlConnection (connectionString);}
+			using (connection )
 			{
 				
 				SqlCommand command = new SqlCommand(
@@ -119,7 +140,7 @@ namespace MSSQL_Assistant_for_Linux
 			}
 			catch(Exception e) {
 				Dialog md = new Dialog ();
-				md.Title = "Error";	
+				md.Title = "Error-getDataBasesNames";	
 				md.SetDefaultSize (200, 100);
 				md.AddButton (Stock.Ok, ResponseType.Ok);
 				Gtk.Image icon = new Gtk.Image (Stock.DialogError, IconSize.Dialog);
@@ -130,6 +151,9 @@ namespace MSSQL_Assistant_for_Linux
 				md.VBox.PackStart (hbox);
 				md.Run ();
 				md.Destroy();
+				viewer.Remove (responseTable);
+				responseTable = new Table (1, 1, false);
+				responseTable.Attach (new Label (e.Message), 0, 2, 0, 2);
 			}
 		}
 
@@ -146,10 +170,13 @@ namespace MSSQL_Assistant_for_Linux
 
 		private void findTablesNames(TreeIter parentIter)
 		{
+			string name =(string) structureStore.GetValue (parentIter, 0);
+			string questTables=	"USE "+name+" SELECT name FROM sys.tables";
 			try{
-			using (SqlConnection connection = new SqlConnection (connectionString)) {
-				string name =(string) structureStore.GetValue (parentIter, 0);
-				string questTables=	"USE "+name+" SELECT name FROM sys.tables";
+				if(!String.IsNullOrEmpty(connectionString) || !String.IsNullOrWhiteSpace(connectionString))
+				{connection = new SqlConnection (connectionString);}
+			using ( connection ) {
+
 
 				SqlCommand command = new SqlCommand(questTables, connection);
 				connection.Open();
@@ -171,8 +198,8 @@ namespace MSSQL_Assistant_for_Linux
 			}
 		catch(Exception e) {
 			Dialog md = new Dialog ();
-			md.Title = "Error";	
-			md.SetDefaultSize (200, 100);
+				md.Title = "Error-findTablesNames";	
+			md.SetDefaultSize (250, 100);
 			md.AddButton (Stock.Ok, ResponseType.Ok);
 			Gtk.Image icon = new Gtk.Image (Stock.DialogError, IconSize.Dialog);
 			Label message = new Label (e.Message);
@@ -182,6 +209,9 @@ namespace MSSQL_Assistant_for_Linux
 			md.VBox.PackStart (hbox);
 			md.Run ();
 			md.Destroy();
+				viewer.Remove (responseTable);
+				responseTable = new Table (1, 1, false);
+				responseTable.Attach (new Label (e.Message), 0, 2, 0, 2);
 		}
 		}
 
@@ -247,7 +277,9 @@ namespace MSSQL_Assistant_for_Linux
 		private void findColumnesNames(TreeIter Iter,TreeIter parentIter)
 		{
 			try{
-			using (SqlConnection connection = new SqlConnection (connectionString)) {
+				if(!String.IsNullOrEmpty(connectionString) || !String.IsNullOrWhiteSpace(connectionString))
+				{connection = new SqlConnection (connectionString);}
+			using ( connection ) {
 
 
 				string name =(string) structureStore.GetValue (Iter, 0);
@@ -287,7 +319,7 @@ namespace MSSQL_Assistant_for_Linux
 
 			catch(Exception e) {
 				Dialog md = new Dialog ();
-				md.Title = "Error";	
+				md.Title = "Error-findColumnesNames";	
 				md.SetDefaultSize (200, 100);
 				md.AddButton (Stock.Ok, ResponseType.Ok);
 				Gtk.Image icon = new Gtk.Image (Stock.DialogError, IconSize.Dialog);
@@ -298,6 +330,9 @@ namespace MSSQL_Assistant_for_Linux
 				md.VBox.PackStart (hbox);
 				md.Run ();
 				md.Destroy();
+				viewer.Remove (responseTable);
+				responseTable = new Table (1, 1, false);
+				responseTable.Attach (new Label (e.Message), 0, 2, 0, 2);
 			}
 
 		}

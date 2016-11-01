@@ -3,18 +3,19 @@ using Gtk;
 
 namespace MSSQL_Assistant_for_Linux
 {
-	public class AssistantMenuBar:MenuBar
+	public partial class MsSqlAssistant : Gtk.Window
 	{
-		MenuItem connection;
+		MenuBar menubar;
+		MenuItem connectionMI;
 		Menu connectionMenu;
-		MenuItem query;
+		MenuItem queryMI;
 		Menu queryMenu;
 		MenuItem edit;
 		Menu editMenu;
 
-	public	MenuItem newConnection;
-	public	MenuItem updateConnection;
-	public	MenuItem closeConnection;
+	public	MenuItem newConnectionMI;
+	public	MenuItem updateConnectionMI;
+	public	MenuItem closeConnectionMI;
 
 		public MenuItem newQuery;
 		public MenuItem open;
@@ -28,21 +29,22 @@ namespace MSSQL_Assistant_for_Linux
 		public MenuItem undo;
 		public MenuItem redo;
 		
-		public AssistantMenuBar ():base()
+		 void createAssistantMenuBar ()
 		{
-			connection = new MenuItem ("Connection");
+			menubar = new MenuBar();
+			connectionMI = new MenuItem ("Connection");
 			connectionMenu=new Menu();
-			connection.Submenu = connectionMenu;
-			newConnection = new MenuItem ("Open connection");
-			updateConnection = new MenuItem ("Update");
-			closeConnection = new MenuItem ("Close connection");
-			connectionMenu.Append (newConnection);
-			connectionMenu.Append (updateConnection);
-			connectionMenu.Append (closeConnection);
+			connectionMI.Submenu = connectionMenu;
+			newConnectionMI = new MenuItem ("Open connection");
+			updateConnectionMI = new MenuItem ("Update");
+			closeConnectionMI = new MenuItem ("Close connection");
+			connectionMenu.Append (newConnectionMI);
+			connectionMenu.Append (updateConnectionMI);
+			connectionMenu.Append (closeConnectionMI);
 
-			query = new MenuItem ("Query");
+			queryMI = new MenuItem ("Query");
 			queryMenu = new Menu ();
-			query.Submenu = queryMenu;
+			queryMI.Submenu = queryMenu;
 			newQuery = new MenuItem ("New query");
 			open = new MenuItem ("Open query");
 			save = new MenuItem ("Save query");
@@ -68,9 +70,38 @@ namespace MSSQL_Assistant_for_Linux
 			editMenu.Append (undo);
 			editMenu.Append (redo);
 
-			this.Append (connection);
-			this.Append (query);
-			this.Append (edit);
+			menubar.Append (connectionMI);
+			menubar.Append (queryMI);
+			menubar.Append (edit);
+
+			newConnectionMI.Activated += OnNewConnect;
+			newConnectionMI.Activated += updateDBStructure;
+
+			updateConnectionMI.Activated += OnUpdateConnect;
+			updateConnectionMI.Activated += updateDBStructure;
+
+			closeConnectionMI.Activated += OnCloseConnect;
+
+			newQuery.Activated +=OnNew;
+
+			open.Activated += OnOpen;
+
+			save.Activated += OnSave;
+
+			saveAs.Activated += OnSaveAs;
+
+			close.Activated += OnClose;
+
+			undo.Activated += OnUndo;
+
+			redo.Activated += OnRedo;
+
+			copy.Activated += OnCopy;
+
+			cut.Activated += OnCut;
+
+			paste.Activated += OnPaste;
+
 		}
 	}
 }
