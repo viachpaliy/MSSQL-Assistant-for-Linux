@@ -36,26 +36,26 @@ namespace MSSQL_Assistant_for_Linux
 			closeConnectionBtn.TooltipText = "Close connection";
 
 			newBtn = new ToolButton (Stock.New);
-			newBtn.TooltipText = "New query";
+			newBtn.TooltipText = "New query Ctrl+N";
 			openBtn = new ToolButton (Stock.Open);
-			openBtn.TooltipText = "Open query";
+			openBtn.TooltipText = "Open query Ctrl+O";
 			saveBtn = new ToolButton (Stock.Save);
-			saveBtn.TooltipText = "Save query";
+			saveBtn.TooltipText = "Save query Ctrl+S";
 			saveAsBtn = new ToolButton (Stock.SaveAs);
 			saveAsBtn.TooltipText = "Save query as...";
 			closeBtn = new ToolButton (Stock.Close);
-			closeBtn.TooltipText = "Close query";
+			closeBtn.TooltipText = "Close query Ctrl+W";
 
 			copyBtn = new ToolButton (Stock.Copy);
-			copyBtn.TooltipText = "Copy";
+			copyBtn.TooltipText = "Copy Ctrl+C";
 			pasteBtn = new ToolButton (Stock.Paste);
-			pasteBtn.TooltipText = "Paste";
+			pasteBtn.TooltipText = "Paste Ctpl+V";
 			cutBtn = new ToolButton (Stock.Cut);
-			cutBtn.TooltipText = "Cut";
+			cutBtn.TooltipText = "Cut Ctrl+X";
 			undoBtn = new ToolButton (Stock.Undo);
-			undoBtn.TooltipText = "Undo";
+			undoBtn.TooltipText = "Undo Ctrl+Z";
 			redoBtn = new ToolButton (Stock.Redo);
-			redoBtn.TooltipText = "Redo";
+			redoBtn.TooltipText = "Redo Ctrl+Y";
 
 			executeBtn = new ToolButton (Stock.Execute);
 			executeBtn.TooltipText = "Query execute";

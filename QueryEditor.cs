@@ -46,8 +46,8 @@ namespace MSSQL_Assistant_for_Linux
 				}
 
 				dialog.Destroy ();
-				queryText.Buffer.Clear ();
 			}
+			queryText.Buffer.Clear ();
 		}
 
 
@@ -62,9 +62,11 @@ namespace MSSQL_Assistant_for_Linux
 			TextIter finishIter;
 			if (queryText.Buffer.GetSelectionBounds (out startIter, out finishIter)) {
 				clipboard = queryText.Buffer.GetText (startIter, finishIter, true);
-
+				if(pasteBtn.Sensitive==false)pasteBtn.Sensitive = true;
+				if (paste.Sensitive == false) paste.Sensitive = true; 
 				undoStack.Push (queryText.Buffer.Text);
-
+				if (undoBtn.Sensitive == false)	undoBtn.Sensitive = true;
+				if (undo.Sensitive == false) undo.Sensitive = true;
 				queryText.Buffer.Delete (ref startIter, ref finishIter);
 			}
 
@@ -76,37 +78,54 @@ namespace MSSQL_Assistant_for_Linux
 			TextIter finishIter;
 			if (queryText.Buffer.GetSelectionBounds (out startIter, out finishIter)) {
 				clipboard = queryText.Buffer.GetText (startIter, finishIter, true);
-
+				if(pasteBtn.Sensitive==false)pasteBtn.Sensitive = true;
+				if (paste.Sensitive == false) paste.Sensitive = true; 
 			}
 		}
 
 		public void OnRedo(object sender, EventArgs args)
 		{
-			undoStack.Push (queryText.Buffer.Text);
-
-			if (redoStack.Count>0)	queryText.Buffer.Text = redoStack.Pop ();
-
+			
+			if (redoStack.Count > 0) {
+				undoStack.Push (queryText.Buffer.Text);
+				if (undoBtn.Sensitive == false)	undoBtn.Sensitive = true;
+				if (undo.Sensitive == false) undo.Sensitive = true;
+				queryText.Buffer.Text = redoStack.Pop ();
+			}
+			if (redoStack.Count == 0) {
+				redoBtn.Sensitive = false;
+				redo.Sensitive = false;
+			}
 
 		}
 
 		public void OnUndo(object sender, EventArgs args)
 		{
-			redoStack.Push (queryText.Buffer.Text);
-
-			if (undoStack.Count>0)	queryText.Buffer.Text = undoStack.Pop ();
-
+			
+			if (undoStack.Count > 0) {
+				redoStack.Push (queryText.Buffer.Text);
+				if (redoBtn.Sensitive == false)	redoBtn.Sensitive = true;
+				if (redo.Sensitive == false)	redo.Sensitive = true;
+				queryText.Buffer.Text = undoStack.Pop ();
+			}
+			if (undoStack.Count == 0) {
+				undoBtn.Sensitive = false;
+				undo.Sensitive = false;
+			}
 		}
 
 		public void OnUserActionBegun(object sender, EventArgs args)
 		{
 			undoStack.Push (queryText.Buffer.Text);
-
+			if (undoBtn.Sensitive == false)	undoBtn.Sensitive = true;
+			if (undo.Sensitive == false) undo.Sensitive = true;
 		}
 
 		public void OnTextChanged(object sender, EventArgs args)
 		{
 			isSaved = false;
-
+			if (saveBtn.Sensitive==false) saveBtn.Sensitive = true;
+			if (save.Sensitive==false) save.Sensitive = true;
 		}
 
 
@@ -135,9 +154,13 @@ namespace MSSQL_Assistant_for_Linux
 				fileName =  "Untitled";
 				this.Title ="MSSQL Asistant - "+ fileName;
 				isSaved = true;
-
+				saveBtn.Sensitive = false;
+				save.Sensitive = false;
+				undoBtn.Sensitive = false;
+				undo.Sensitive = false;
 				undoStack.Clear ();
-			
+				redoBtn.Sensitive = false;
+				redo.Sensitive = false;
 				redoStack.Clear ();
 			}
 		}
@@ -147,6 +170,8 @@ namespace MSSQL_Assistant_for_Linux
 			if (fileName != "Untitled") {
 				System.IO.File.WriteAllText (fileName, queryText.Buffer.Text);
 				isSaved = true;
+				saveBtn.Sensitive = false;
+				save.Sensitive = false;
 			} else
 				OnSaveAs (sender, args);
 
@@ -168,7 +193,8 @@ namespace MSSQL_Assistant_for_Linux
 				fileName=filechooser.Filename;
 				this.Title ="MSSQL Asistant - " + fileName;
 				isSaved = true;
-
+				saveBtn.Sensitive = false;
+				save.Sensitive = false;
 			}
 
 			filechooser.Destroy();
@@ -218,9 +244,13 @@ namespace MSSQL_Assistant_for_Linux
 				filechooser.Destroy ();
 				this.Title ="MSSQL Assistant - " + fileName;
 				isSaved = true;
-			
+				saveBtn.Sensitive = false;
+				save.Sensitive = false;
+				undoBtn.Sensitive = false;
+				undo.Sensitive = false;
 				undoStack.Clear ();
-			
+				redoBtn.Sensitive = false;
+				redo.Sensitive = false;
 				redoStack.Clear ();
 			}
 

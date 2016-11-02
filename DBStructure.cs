@@ -41,20 +41,32 @@ namespace MSSQL_Assistant_for_Linux
 			if (column != null) {
 				tvDBStructure.RemoveColumn (column);
 			}
+			updateConnectionMI.Sensitive = false;
+			updateConnectionBtn.Sensitive = false;
+			closeConnectionMI.Sensitive = false;
+			closeConnectionBtn.Sensitive = false;
 		}
 
 		public void OnNewConnect(object o, EventArgs args)
 		{
 			getConnectionString ();
-			if(!String.IsNullOrEmpty(connectionString) || !String.IsNullOrWhiteSpace(connectionString))
-			{connection = new SqlConnection (connectionString);}
-			getDataBasesStructure ();
+			if (!String.IsNullOrEmpty (connectionString) || !String.IsNullOrWhiteSpace (connectionString)) {
+				connection = new SqlConnection (connectionString);
+				getDataBasesStructure ();
+				updateConnectionMI.Sensitive = true;
+				updateConnectionBtn.Sensitive = true;
+				closeConnectionMI.Sensitive = true;
+				closeConnectionBtn.Sensitive = true;
+				}
 
 		}
 
 		public void OnUpdateConnect(object o, EventArgs args)
 		{
-			getDataBasesStructure ();
+			if (!String.IsNullOrEmpty (connectionString) || !String.IsNullOrWhiteSpace (connectionString)) {
+				connection = new SqlConnection (connectionString);
+				getDataBasesStructure ();
+			}
 		}
 
 		public void getDataBasesStructure()
@@ -102,7 +114,7 @@ namespace MSSQL_Assistant_for_Linux
 							"Password="+strings[2]+";";
 						exitFlag=true;
 					}
-				}
+				} 
 			}while(!exitFlag);
 			connectDialog.Destroy ();
 			connectDialog = null;

@@ -9,8 +9,6 @@ namespace MSSQL_Assistant_for_Linux
 	public partial class MsSqlAssistant : Gtk.Window
 	{
 		VBox vbox;
-		//public AssistantMenuBar menubar;
-		//public AssistantToolbar toolbar;
 		HBox hbox;
 		VBox lbox;
 		VBox rbox;
@@ -24,10 +22,7 @@ namespace MSSQL_Assistant_for_Linux
 		ScrolledWindow responseWindow;
 		Viewport viewer;
 		public Table responseTable;
-
-		//DBStructure dataBasesStructure;
-		//QueryEditor queryEditor;
-			
+				
 		TextTag keywordTag;
 		TextTag namesTag;
 
@@ -39,10 +34,10 @@ namespace MSSQL_Assistant_for_Linux
 			Gdk.Pixbuf icon = new Gdk.Pixbuf ("res/icona.png");
 			this.Icon = icon;
 			vbox = new VBox (false,1);
-			//menubar = new AssistantMenuBar ();
+
 			createAssistantMenuBar();
 			vbox.PackStart (menubar, false, true, 0);
-			//toolbar = new AssistantToolbar ();
+
 			createAssistantToolbar();
 			vbox.PackStart (toolbar, false, true, 0);
 			hbox = new HBox (false, 1);
@@ -84,13 +79,9 @@ namespace MSSQL_Assistant_for_Linux
 
 			vbox.PackStart (hbox, true, true, 0);
 			Add (vbox);
-
-		    //dataBasesStructure = new DBStructure ();
+		    
 			createDBStructure();
 
-//			queryEditor = new QueryEditor ();
-//			queryEditor.parent = this;
-//			queryEditor.textBuffer = queryText.Buffer;
 			initQueryEditor();
 
 			keywordTag = new TextTag ("keywordTag");
@@ -105,7 +96,22 @@ namespace MSSQL_Assistant_for_Linux
 			queryText.Buffer.UserActionBegun += highlightingSQLkeywords;
 			queryText.Buffer.UserActionBegun += highlightingNames;
 
+			updateConnectionMI.Sensitive = false;
+			updateConnectionBtn.Sensitive = false;
+			closeConnectionMI.Sensitive = false;
+			closeConnectionBtn.Sensitive = false;
 
+			fileName =  "Untitled";
+			this.Title ="MSSQL Asistant - "+ fileName;
+			isSaved = true;
+			saveBtn.Sensitive = false;
+			save.Sensitive = false;
+			undoBtn.Sensitive = false;
+			undo.Sensitive = false;
+			undoStack.Clear ();
+			redoBtn.Sensitive = false;
+			redo.Sensitive = false;
+			redoStack.Clear ();
 
 			ShowAll ();
 
@@ -123,20 +129,21 @@ namespace MSSQL_Assistant_for_Linux
 			} else {
 				query = queryText.Buffer.Text;
 			}
-			if (cbCurrentDB.Active != -1) {
-				int pos = query.ToLower ().IndexOf ("use " + cbCurrentDB.ActiveText.ToLower ());
-				if (pos == -1)
-					query = "USE " + cbCurrentDB.ActiveText + " " + query;
-			}
+//			if (cbCurrentDB.Active >0) {
+//				int pos = query.ToLower ().IndexOf ("use " + cbCurrentDB.ActiveText.ToLower ());
+//				if (pos == -1)
+//					query = "USE " + cbCurrentDB.ActiveText + " " + query;
+//			}
 			try{
 				if(!String.IsNullOrEmpty(connectionString) || !String.IsNullOrWhiteSpace(connectionString))
-				{connection = new SqlConnection (connectionString);}
+				{connection = new SqlConnection (connectionString);	}
 			using ( connection ) {
 				SqlCommand command;
 				SqlDataReader reader;
 
 				 command = new SqlCommand(query, connection);
 				connection.Open();
+					if (cbCurrentDB.Active !=-1) {connection.ChangeDatabase(cbCurrentDB.ActiveText);}
 			   reader = command.ExecuteReader();
 				viewer.Remove (responseTable);
 				responseTable = new Table (1, 1, false);
@@ -193,6 +200,7 @@ namespace MSSQL_Assistant_for_Linux
 
 
 			var model = new Gtk.ListStore (typeof(string));
+			//model.AppendValues ("not selected");
 			for (int i=0;i<dataBasesNames.Count;i++) {
 				model.AppendValues(dataBasesNames[i]);
 			}
@@ -226,6 +234,7 @@ namespace MSSQL_Assistant_for_Linux
 					}
 					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
 				} while(!exit);
+
 			}
 		}
 

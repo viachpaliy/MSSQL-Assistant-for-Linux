@@ -13,24 +13,29 @@ namespace MSSQL_Assistant_for_Linux
 		MenuItem edit;
 		Menu editMenu;
 
-	public	MenuItem newConnectionMI;
-	public	MenuItem updateConnectionMI;
-	public	MenuItem closeConnectionMI;
+		MenuItem newConnectionMI;
+		MenuItem updateConnectionMI;
+		MenuItem closeConnectionMI;
 
-		public MenuItem newQuery;
-		public MenuItem open;
-		public MenuItem save;
-		public MenuItem saveAs;
-		public MenuItem close;
+		MenuItem newQuery;
+		MenuItem open;
+		MenuItem save;
+		MenuItem saveAs;
+		MenuItem close;
+		MenuItem executeQuery;
 
-		public MenuItem copy;
-		public MenuItem paste;
-		public MenuItem cut;
-		public MenuItem undo;
-		public MenuItem redo;
+		MenuItem copy;
+		MenuItem paste;
+		MenuItem cut;
+		MenuItem undo;
+		MenuItem redo;
+
+		AccelGroup accelGroup;
 		
 		 void createAssistantMenuBar ()
 		{
+			accelGroup = new AccelGroup ();
+			AddAccelGroup (accelGroup);
 			menubar = new MenuBar();
 			connectionMI = new MenuItem ("Connection");
 			connectionMenu=new Menu();
@@ -50,10 +55,14 @@ namespace MSSQL_Assistant_for_Linux
 			save = new MenuItem ("Save query");
 			saveAs = new MenuItem ("Save file as ...");
 			close = new MenuItem ("Close");
+			executeQuery = new MenuItem ("Execute query");
 			queryMenu.Append (newQuery);
 			queryMenu.Append (open);
 			queryMenu.Append (save);
 			queryMenu.Append (saveAs);
+			queryMenu.Append (new SeparatorMenuItem ());
+			queryMenu.Append (executeQuery);
+			queryMenu.Append (new SeparatorMenuItem ());
 			queryMenu.Append (close);
 
 			edit = new MenuItem ("Edit");
@@ -83,25 +92,53 @@ namespace MSSQL_Assistant_for_Linux
 			closeConnectionMI.Activated += OnCloseConnect;
 
 			newQuery.Activated +=OnNew;
+			newQuery.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.N, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			open.Activated += OnOpen;
+			open.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.O, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			save.Activated += OnSave;
+			save.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.S, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			saveAs.Activated += OnSaveAs;
 
 			close.Activated += OnClose;
+			close.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.W, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			undo.Activated += OnUndo;
+			undo.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.Z, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			redo.Activated += OnRedo;
+			redo.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.Y, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			copy.Activated += OnCopy;
+			copy.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.C, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			cut.Activated += OnCut;
+			cut.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.X, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
 			paste.Activated += OnPaste;
+			paste.AddAccelerator("activate",accelGroup,
+				new AccelKey(Gdk.Key.V, Gdk.ModifierType.ControlMask,
+					AccelFlags.Visible));
 
+			executeQuery.Activated += OnExecuteQuery;
 		}
 	}
 }
