@@ -66,4 +66,7 @@
     <EmbeddedResource Include="res\MSSQL.png" />
     <EmbeddedResource Include="res\icona.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+  </ItemGroup>
 </Project>

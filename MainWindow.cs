@@ -225,11 +225,24 @@ namespace MSSQL_Assistant_for_Linux
 				startpos = 0;
 				exit = false;
 				do {
-					pos=queryText.Buffer.Text.ToLower().IndexOf(" "+item+" ",startpos);
+					pos=queryText.Buffer.Text.ToLower().IndexOf(item,startpos);
 					if (pos==-1){exit=true;}
 					else{
-						queryText.Buffer.ApplyTag(keywordTag,queryText.Buffer.GetIterAtOffset(pos+1),
-							queryText.Buffer.GetIterAtOffset(pos+1+item.Length));
+						if(((pos==0)||((pos>0) && ((queryText.Buffer.Text[pos-1]==' ')||
+							(queryText.Buffer.Text[pos-1]==',')||
+							(queryText.Buffer.Text[pos-1]=='\n')||
+							(queryText.Buffer.Text[pos-1]=='\t')
+						
+						))) &&
+							((pos+item.Length==queryText.Buffer.CharCount)||
+								((pos+item.Length<queryText.Buffer.CharCount)&&
+									((queryText.Buffer.Text[pos+item.Length]==' ')||
+										(queryText.Buffer.Text[pos+item.Length]==',')||
+										(queryText.Buffer.Text[pos+item.Length]=='\n')||
+										(queryText.Buffer.Text[pos+item.Length]=='\t')
+																			))))
+						{queryText.Buffer.ApplyTag(keywordTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));}
 							startpos=pos+item.Length;
 					}
 					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
