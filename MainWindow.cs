@@ -211,6 +211,7 @@ namespace MSSQL_Assistant_for_Linux
 
 		public void highlightingSQLkeywords(object sender,EventArgs args)
 		{
+			queryText.Buffer.RemoveAllTags (queryText.Buffer.StartIter, queryText.Buffer.EndIter);
 			int pos, startpos;
 			bool exit;
 
@@ -228,19 +229,20 @@ namespace MSSQL_Assistant_for_Linux
 					pos=queryText.Buffer.Text.ToLower().IndexOf(item,startpos);
 					if (pos==-1){exit=true;}
 					else{
-						if(((pos==0)||((pos>0) && ((queryText.Buffer.Text[pos-1]==' ')||
-							(queryText.Buffer.Text[pos-1]==',')||
-							(queryText.Buffer.Text[pos-1]=='\n')||
-							(queryText.Buffer.Text[pos-1]=='\t')
+							
+						char[] startSymbols=new char[]{' ','{','(','}',')','\n','\t',','};
+						bool startCondition= pos==0;
+						foreach (char ch in startSymbols)
+						{startCondition=startCondition ||(pos>0 && queryText.Buffer.Text[pos-1]==ch);	}
+
+						char[] endSymbols=new char[]{' ','{','(','}',')','\n','\t',',','.'};
+						bool endCondition= pos+item.Length==queryText.Buffer.CharCount;
+						foreach (char ch in endSymbols)
+						{endCondition=endCondition ||
+								(pos+item.Length<queryText.Buffer.CharCount &&
+									queryText.Buffer.Text[pos+item.Length]==ch);}
 						
-						))) &&
-							((pos+item.Length==queryText.Buffer.CharCount)||
-								((pos+item.Length<queryText.Buffer.CharCount)&&
-									((queryText.Buffer.Text[pos+item.Length]==' ')||
-										(queryText.Buffer.Text[pos+item.Length]==',')||
-										(queryText.Buffer.Text[pos+item.Length]=='\n')||
-										(queryText.Buffer.Text[pos+item.Length]=='\t')
-																			))))
+						if (startCondition && endCondition)
 						{queryText.Buffer.ApplyTag(keywordTag,queryText.Buffer.GetIterAtOffset(pos),
 							queryText.Buffer.GetIterAtOffset(pos+item.Length));}
 							startpos=pos+item.Length;
@@ -264,8 +266,21 @@ namespace MSSQL_Assistant_for_Linux
 					pos=queryText.Buffer.Text.IndexOf(item,startpos);
 					if (pos==-1){exit=true;}
 					else{
-						queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
-							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+						char[] startSymbols=new char[]{' ','{','(','}',')','\n','\t',','};
+						bool startCondition= pos==0;
+						foreach (char ch in startSymbols)
+						{startCondition=startCondition ||(pos>0 && queryText.Buffer.Text[pos-1]==ch);	}
+
+						char[] endSymbols=new char[]{' ','{','(','}',')','\n','\t',',','.'};
+						bool endCondition= pos+item.Length==queryText.Buffer.CharCount;
+						foreach (char ch in endSymbols)
+						{endCondition=endCondition ||
+								(pos+item.Length<queryText.Buffer.CharCount &&
+									queryText.Buffer.Text[pos+item.Length]==ch);}
+
+						if (startCondition && endCondition)
+						{queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));}
 						startpos=pos+item.Length;
 					}
 					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
@@ -280,8 +295,21 @@ namespace MSSQL_Assistant_for_Linux
 					pos=queryText.Buffer.Text.IndexOf(item,startpos);
 					if (pos==-1){exit=true;}
 					else{
-						queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
-							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+						char[] startSymbols=new char[]{' ','{','(','}',')','\n','\t',',','.'};
+						bool startCondition= pos==0;
+						foreach (char ch in startSymbols)
+						{startCondition=startCondition ||(pos>0 && queryText.Buffer.Text[pos-1]==ch);	}
+
+						char[] endSymbols=new char[]{' ','{','(','}',')','\n','\t',',','.'};
+						bool endCondition= pos+item.Length==queryText.Buffer.CharCount;
+						foreach (char ch in endSymbols)
+						{endCondition=endCondition ||
+								(pos+item.Length<queryText.Buffer.CharCount &&
+									queryText.Buffer.Text[pos+item.Length]==ch);}
+
+						if (startCondition && endCondition)
+						{queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));}
 						startpos=pos+item.Length;
 					}
 					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
@@ -297,8 +325,21 @@ namespace MSSQL_Assistant_for_Linux
 					pos=queryText.Buffer.Text.IndexOf(item,startpos);
 					if (pos==-1){exit=true;}
 					else{
-						queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
-							queryText.Buffer.GetIterAtOffset(pos+item.Length));
+						char[] startSymbols=new char[]{' ','{','(','}',')','\n','\t',',','.'};
+						bool startCondition= pos==0;
+						foreach (char ch in startSymbols)
+						{startCondition=startCondition ||(pos>0 && queryText.Buffer.Text[pos-1]==ch);	}
+
+						char[] endSymbols=new char[]{' ','{','(','}',')','\n','\t',',','.'};
+						bool endCondition= pos+item.Length==queryText.Buffer.CharCount;
+						foreach (char ch in endSymbols)
+						{endCondition=endCondition ||
+								(pos+item.Length<queryText.Buffer.CharCount &&
+									queryText.Buffer.Text[pos+item.Length]==ch);}
+
+						if (startCondition && endCondition)
+						{queryText.Buffer.ApplyTag(namesTag,queryText.Buffer.GetIterAtOffset(pos),
+							queryText.Buffer.GetIterAtOffset(pos+item.Length));}
 						startpos=pos+item.Length;
 					}
 					if (startpos>=queryText.Buffer.CharCount){exit=true;}	
