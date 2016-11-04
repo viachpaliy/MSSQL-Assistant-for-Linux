@@ -41,6 +41,7 @@ namespace MSSQL_Assistant_for_Linux
 			if (column != null) {
 				tvDBStructure.RemoveColumn (column);
 			}
+			cbCurrentDB.Model = null;
 			updateConnectionMI.Sensitive = false;
 			updateConnectionBtn.Sensitive = false;
 			closeConnectionMI.Sensitive = false;
